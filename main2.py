@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, send_file
+from flask import Flask, Response, render_template, jsonify
 import cv2
 import datetime
 import os
@@ -8,8 +8,10 @@ from fdlite import FaceDetection, FaceLandmark, face_detection_to_roi
 from PIL import Image, ImageDraw
 import numpy as np
 import time
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder='static')
+CORS(app)
 
 # OpenCV video capture
 cap = cv2.VideoCapture(0)  # Change parameter to specify a different camera
@@ -170,6 +172,11 @@ def play_video(filename):
 def stream_and_recordings():
     recordings = get_recordings_list()
     return render_template('stream_and_recordings.html', recordings=recordings)
+
+@app.route('/api/stream_and_recordings')
+def api_stream_and_recordings():
+    recordings = get_recordings_list()
+    return jsonify(recordings)
 
 if __name__ == '__main__':
     start_recording()
