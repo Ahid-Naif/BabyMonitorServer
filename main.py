@@ -1,11 +1,13 @@
-from flask import Flask, Response, render_template, send_file
+from flask import Flask, Response, render_template, jsonify
 import cv2
 import datetime
 import os
 import threading
 import webbrowser
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder='static')
+CORS(app)
 
 # OpenCV video capture
 cap = cv2.VideoCapture(0)  # Change the parameter to specify a different camera (0 for default)
@@ -52,7 +54,7 @@ def generate():
             out.write(frame)
 
         # Encode the frame as JPEG for streaming
-        ret, jpeg = cv2.imencode('.jpg', frame)
+        ret, jpeg = cv2.imencode('.jpeg', frame)
         if not ret:
             break
 
@@ -76,6 +78,11 @@ def play_video(filename):
 def stream_and_recordings():
     recordings = get_recordings_list()
     return render_template('stream_and_recordings.html', recordings=recordings)
+
+@app.route('/api/stream_and_recordings')
+def api_stream_and_recordings():
+    recordings = get_recordings_list()
+    return jsonify(recordings)
 
 if __name__ == '__main__':
     start_recording()
