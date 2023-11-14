@@ -9,6 +9,12 @@ from PIL import Image, ImageDraw
 import numpy as np
 import time
 from flask_cors import CORS
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import messaging
+
+cred = credentials.Certificate("babymonitor-9b214-firebase-adminsdk-v1uhw-133d7768ef.json")
+firebase_admin.initialize_app(cred)
 
 app = Flask(__name__, static_folder='static')
 CORS(app)
@@ -177,6 +183,23 @@ def stream_and_recordings():
 def api_stream_and_recordings():
     recordings = get_recordings_list()
     return jsonify(recordings)
+
+@app.route('/api/delete_all_recordings', methods=['DELETE'])
+def delete_all_recordings():
+    try:
+        # Loop through all the files in the recordings folder and delete them
+        for filename in os.listdir(recordings_folder):
+            file_path = os.path.join(recordings_folder, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        
+        return jsonify({'message': 'All recordings deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 if __name__ == '__main__':
     start_recording()
