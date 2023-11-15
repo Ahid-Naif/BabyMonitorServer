@@ -9,12 +9,6 @@ from PIL import Image, ImageDraw
 import numpy as np
 import time
 from flask_cors import CORS
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import messaging
-
-cred = credentials.Certificate("babymonitor-9b214-firebase-adminsdk-v1uhw-133d7768ef.json")
-firebase_admin.initialize_app(cred)
 
 app = Flask(__name__, static_folder='static')
 CORS(app)
@@ -199,7 +193,10 @@ def delete_all_recordings():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
+@app.route('/api/check-danger', methods=['GET'])
+def check_value():
+    # return jsonify(global_boolean_variable), 200
+    return jsonify(True), 200
 
 if __name__ == '__main__':
     start_recording()
