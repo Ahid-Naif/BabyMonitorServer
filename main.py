@@ -21,6 +21,7 @@ cap = cv2.VideoCapture(0)  # 0 is typically the default camera
 fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Codec
 out = None  # VideoWriter object
 recording_started = None  # Track start time of recording
+recorded_video_duration = 20 # each recorded video will be 20 seconds long
 
 # Directory for saving recordings
 recordings_folder = 'static'
@@ -210,7 +211,7 @@ def generate():
         if not ret:
             break
 
-        if recording_started is None or (datetime.datetime.now() - recording_started).seconds >= 20:
+        if recording_started is None or (datetime.datetime.now() - recording_started).seconds >= recorded_video_duration:
             stop_recording()
             start_recording()
 
@@ -317,7 +318,6 @@ def check_value():
     return jsonify(face_covered), 200
 
 if __name__ == '__main__':
-    start_recording()
     webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
     app.run(host='0.0.0.0', port=5000, debug=True)
     
