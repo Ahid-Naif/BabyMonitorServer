@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, jsonify
+from flask import Flask, Response, render_template, jsonify, request
 import cv2
 import datetime
 import os
@@ -316,6 +316,14 @@ def delete_all_recordings():
 @app.route('/api/check-danger', methods=['GET'])
 def check_value():
     return jsonify(face_covered), 200
+
+@app.route('/api/set-display-enabled', methods=['POST'])
+def set_boolean():
+    global display_enabled
+    data = request.json
+    display_enabled = data.get('value', False)
+    return jsonify({'success': True}), 200
+
 
 if __name__ == '__main__':
     webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
