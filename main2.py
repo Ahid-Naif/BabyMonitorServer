@@ -35,7 +35,10 @@ face_detection_model = FaceDetection()
 face_landmark_model = FaceLandmark()
 
 # Variables to keep track of the covered state and time
+
+global covered_state, face_covered, last_covered_time
 covered_state = False
+face_covered = False  # covered flag
 last_covered_time = 0
 
 def start_recording():
@@ -56,7 +59,8 @@ def draw_all_landmarks(image, landmarks):
     for landmark in landmarks:
         x = int(landmark.x * image.width)
         y = int(landmark.y * image.height)
-        draw.ellipse([(x - 1, y - 1), (x + 1, y + 1)], fill='green', outline='green')
+        purple_color = (128, 0, 128)  # (R, G, B)
+        draw.ellipse([(x - 1, y - 1), (x + 1, y + 1)], fill=purple_color, outline=purple_color)
 
 # Function to create a rectangular mask over a facial region (mouth or nose)
 def mask_region_rect(image, landmarks, region_indices):
@@ -114,11 +118,9 @@ def generate():
         # Perform face detection and landmark drawing
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         detections = face_detection_model(img)
-        face_covered = False  # Reset the covered flag for each frame
         for detection in detections:
             roi = face_detection_to_roi(detection, img.size)
             landmarks = face_landmark_model(img, roi)
-            draw_all_landmarks(img, landmarks)
 
             mouth_mask = mask_region_rect(img, landmarks, mouth_indices)
             nose_mask = mask_region_rect(img, landmarks, nose_indices)
@@ -140,12 +142,26 @@ def generate():
                         face_covered = True
             else:
                 covered_state = False  # Reset if not covered
+                face_covered = False
 
         if face_covered:
-            print("Face is covered")
+            text = "Danger"
+            text_color = (0, 0, 255)  # Red color in BGR
+        else:
+            text = "Safe"
+            text_color = (0, 255, 0)  # Green color in BGR
+    
 
+        draw_all_landmarks(img, landmarks)
         # Convert PIL Image back to OpenCV format
         frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        # Position of the text
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        bottom_left_corner = (10, frame.shape[0] - 10)  # Position at bottom left corner
+        font_scale = 1
+        font_thickness = 2
+        # Put the text on the frame
+        cv2.putText(frame, text, bottom_left_corner, font, font_scale, text_color, font_thickness)
 
         # Encode the frame as JPEG for streaming
         ret, jpeg = cv2.imencode('.jpeg', frame)
@@ -195,8 +211,7 @@ def delete_all_recordings():
 
 @app.route('/api/check-danger', methods=['GET'])
 def check_value():
-    # return jsonify(global_boolean_variable), 200
-    return jsonify(True), 200
+    return jsonify(face_covered), 200
 
 if __name__ == '__main__':
     start_recording()
