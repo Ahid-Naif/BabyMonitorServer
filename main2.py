@@ -35,11 +35,12 @@ face_detection_model = FaceDetection()
 face_landmark_model = FaceLandmark()
 
 # Variables to keep track of the covered state and time
-
-global covered_state, face_covered, last_covered_time
+global covered_state, face_covered, last_covered_time, display_enabled, body_exist
 covered_state = False
 face_covered = False  # covered flag
 last_covered_time = 0
+display_enabled = True 
+body_exist = True
 
 def start_recording():
     global out, recording_started
@@ -55,12 +56,37 @@ def stop_recording():
 
 # Function to draw all landmarks as points on the image
 def draw_all_landmarks(image, landmarks):
-    draw = ImageDraw.Draw(image)
-    for landmark in landmarks:
-        x = int(landmark.x * image.width)
-        y = int(landmark.y * image.height)
-        purple_color = (128, 0, 128)  # (R, G, B)
-        draw.ellipse([(x - 1, y - 1), (x + 1, y + 1)], fill=purple_color, outline=purple_color)
+    if display_enabled:
+        draw = ImageDraw.Draw(image)
+        for landmark in landmarks:
+            x = int(landmark.x * image.width)
+            y = int(landmark.y * image.height)
+            purple_color = (128, 0, 128)  # (R, G, B)
+            draw.ellipse([(x - 1, y - 1), (x + 1, y + 1)], fill=purple_color, outline=purple_color)
+
+def printStatus(img):
+    if display_enabled and body_exist:
+        if face_covered:
+            text = "Danger"
+            text_color = (0, 0, 255)  # Red color in BGR
+        else:
+            text = "Safe"
+            text_color = (0, 255, 0)  # Green color in BGR
+    
+        # Convert PIL Image back to OpenCV format
+        frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        # Position of the text
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        bottom_left_corner = (10, frame.shape[0] - 10)  # Position at bottom left corner
+        font_scale = 1
+        font_thickness = 2
+        # Put the text on the frame
+        cv2.putText(frame, text, bottom_left_corner, font, font_scale, text_color, font_thickness)
+    else:
+        # Convert PIL Image back to OpenCV format
+        frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    
+    return frame
 
 # Function to create a rectangular mask over a facial region (mouth or nose)
 def mask_region_rect(image, landmarks, region_indices):
@@ -99,8 +125,12 @@ def calculate_skin_ratio(image, mask):
 mouth_indices = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0]
 nose_indices = [2, 98, 327, 331, 297]  # Replace with your model's indices
 
+def is_there_face(detections):
+    return (len(detections) > 0)
+
 # Generate function that captures camera frames, processes them, and streams
 def generate():
+    global covered_state, face_covered, last_covered_time
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -118,51 +148,52 @@ def generate():
         # Perform face detection and landmark drawing
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         detections = face_detection_model(img)
-        for detection in detections:
-            roi = face_detection_to_roi(detection, img.size)
-            landmarks = face_landmark_model(img, roi)
+        if is_there_face(detections) and body_exist:
+            for detection in detections:
+                roi = face_detection_to_roi(detection, img.size)
+                landmarks = face_landmark_model(img, roi)
+                draw_all_landmarks(img, landmarks)
 
-            mouth_mask = mask_region_rect(img, landmarks, mouth_indices)
-            nose_mask = mask_region_rect(img, landmarks, nose_indices)
+                mouth_mask = mask_region_rect(img, landmarks, mouth_indices)
+                nose_mask = mask_region_rect(img, landmarks, nose_indices)
 
-            mouth_skin_ratio = calculate_skin_ratio(img, mouth_mask) if mouth_mask else 0
-            nose_skin_ratio = calculate_skin_ratio(img, nose_mask) if nose_mask else 0
+                mouth_skin_ratio = calculate_skin_ratio(img, mouth_mask) if mouth_mask else 0
+                nose_skin_ratio = calculate_skin_ratio(img, nose_mask) if nose_mask else 0
 
-            mouth_covered = mouth_skin_ratio < 0.6
-            nose_covered = nose_skin_ratio < 0.6
+                mouth_covered = mouth_skin_ratio < 0.6
+                nose_covered = nose_skin_ratio < 0.6
 
-            if mouth_covered or nose_covered:
+                if mouth_covered or nose_covered:
+                    if not covered_state:
+                        # If not previously covered, start the timer
+                        last_covered_time = time.time()
+                        covered_state = True
+                    else:
+                        # If already covered, check if 1 second has passed
+                        if time.time() - last_covered_time > 0.5:
+                            if mouth_covered or nose_covered:
+                                face_covered = True
+                            else:
+                                covered_state = False
+                else:
+                    face_covered = False
+        else:
+            if not body_exist:
                 if not covered_state:
                     # If not previously covered, start the timer
                     last_covered_time = time.time()
                     covered_state = True
                 else:
                     # If already covered, check if 1 second has passed
-                    if time.time() - last_covered_time > 0.3:
-                        face_covered = True
+                    if time.time() - last_covered_time > 0.5:
+                        if not body_exist:
+                            face_covered = True
+                        else:
+                            covered_state = False
             else:
-                covered_state = False  # Reset if not covered
-                face_covered = False
+                face_covered = False   
 
-        if face_covered:
-            text = "Danger"
-            text_color = (0, 0, 255)  # Red color in BGR
-        else:
-            text = "Safe"
-            text_color = (0, 255, 0)  # Green color in BGR
-    
-
-        draw_all_landmarks(img, landmarks)
-        # Convert PIL Image back to OpenCV format
-        frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        # Position of the text
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        bottom_left_corner = (10, frame.shape[0] - 10)  # Position at bottom left corner
-        font_scale = 1
-        font_thickness = 2
-        # Put the text on the frame
-        cv2.putText(frame, text, bottom_left_corner, font, font_scale, text_color, font_thickness)
-
+        frame = printStatus(img)
         # Encode the frame as JPEG for streaming
         ret, jpeg = cv2.imencode('.jpeg', frame)
         if not ret:
