@@ -57,7 +57,7 @@ def start_recording():
     # -1: This specifies the codec to be used. A value of -1 prompts the user to select the codec from a list of available codecs on their machine.
     # 20.0: This is the frames per second (FPS) rate at which the video is recorded. 
     # (640, 480): This tuple specifies the resolution of the video, i.e., width and height in pixels.
-    out = cv2.VideoWriter(recording_filename, -1, 20.0, (640, 480))
+    out = cv2.VideoWriter(recording_filename, fourcc, 20.0, (640, 480))
 
 def stop_recording():
     """Stops the current video recording."""
