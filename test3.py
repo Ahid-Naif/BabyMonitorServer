@@ -210,20 +210,7 @@ def generate():
         ret, frame = cap.read()
         if not ret:
             break
-
-        if recording_started is None or (datetime.datetime.now() - recording_started).seconds >= recorded_video_duration:
-            stop_recording()
-            start_recording()
-
-        with lock:
-            out.write(frame)
-            
-        # Convert the image from BGR to RGB color space.
-        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        detections = face_detection_model(img)
-        
-        # Convert the image from RGB to BGR color space.
-        frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+                  
         ret, jpeg = cv2.imencode('.jpeg', frame)
         if not ret:
             break
@@ -287,6 +274,6 @@ def set_boolean():
 
 
 if __name__ == '__main__':
-    webbrowser.open('http://localhost:8080/stream_and_recordings')  # Open the page in the default browser
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
+    app.run(host='0.0.0.0', port=5000, debug=True)
     
