@@ -275,5 +275,5 @@ def set_boolean():
 
 if __name__ == '__main__':
     # webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
     
