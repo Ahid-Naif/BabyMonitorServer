@@ -205,10 +205,9 @@ def is_there_face(detections):
 
 def generate():
     """Generator function for video streaming."""
-    global covered_state, face_covered, last_covered_time
     while True:
-        ret, frame = cap.read()
-        if not ret:
+        success, frame = cap.read()
+        if not success:
             break
         else:         
             ret, jpeg = cv2.imencode('.jpg', frame)
