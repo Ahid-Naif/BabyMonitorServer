@@ -1,12 +1,24 @@
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 import cv2
+import os
+from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+CORS(app)
 
 # Initialize video capture with the first camera device
 cap = cv2.VideoCapture(0)
 
-def generate_frames():
+# Directory for saving recordings
+recordings_folder = 'static'
+if not os.path.exists(recordings_folder):
+    os.makedirs(recordings_folder)
+
+def get_recordings_list():
+    """Retrieves the list of recording files."""
+    return os.listdir(recordings_folder)
+
+def generate():
     while True:
         success, frame = cap.read()  # Read the camera frame
         if not success:
@@ -19,23 +31,13 @@ def generate_frames():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(),
+    return Response(generate(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/')
 def index():
-    # Return a simple HTML page with an embedded video feed
-    return """
-    <html>
-    <head>
-    <title>Raspberry Pi Camera Stream</title>
-    </head>
-    <body>
-    <h1>Raspberry Pi Camera Stream</h1>
-    <img src="/video_feed" />
-    </body>
-    </html>
-    """
+    recordings = get_recordings_list()
+    return render_template('stream_and_recordings.html', recordings=recordings)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
