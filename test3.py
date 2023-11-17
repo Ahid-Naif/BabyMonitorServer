@@ -211,9 +211,9 @@ def generate():
         if not ret:
             break
                   
-        ret, jpeg = cv2.imencode('.jpeg', frame)
-        if not ret:
-            break
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        # if not ret:
+        #     break
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
