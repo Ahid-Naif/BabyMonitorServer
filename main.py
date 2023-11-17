@@ -48,6 +48,7 @@ def start_recording():
     global out, recording_started
     recording_started = datetime.datetime.now()
     recording_filename = os.path.join(recordings_folder, f'video_{recording_started.strftime("%Y-%m-%d_%H-%M-%S")}.mp4')
+    print(recording_filename)
     # cv2.VideoWriter is used to create a video writer object for recording.
     # It takes several parameters:
 
