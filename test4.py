@@ -4,7 +4,7 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='static')
-CORS(app)
+# CORS(app)
 
 # Initialize video capture with the first camera device
 cap = cv2.VideoCapture(0)
