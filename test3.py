@@ -210,13 +210,13 @@ def generate():
         ret, frame = cap.read()
         if not ret:
             break
-                  
-        ret, jpeg = cv2.imencode('.jpg', frame)
+        else:         
+            ret, jpeg = cv2.imencode('.jpg', frame)
         # if not ret:
         #     break
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
 
 # Flask routes for different functionalities
 @app.route('/video_feed')
