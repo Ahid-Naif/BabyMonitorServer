@@ -12,7 +12,7 @@ from flask_cors import CORS
 
 # Flask app setup with CORS (Cross-Origin Resource Sharing) enabled
 app = Flask(__name__, static_folder='static')
-# CORS(app)
+CORS(app)
 
 # Video capture setup with OpenCV
 cap = cv2.VideoCapture(0)  # 0 is typically the default camera
@@ -326,6 +326,6 @@ def set_boolean():
 
 
 if __name__ == '__main__':
-    # webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
+    webbrowser.open('http://localhost:5000/stream_and_recordings')  # Open the page in the default browser
     app.run(host='0.0.0.0', port=5000)
     
