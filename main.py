@@ -24,12 +24,10 @@ recording_started = None  # Track start time of recording
 recorded_video_duration = 20 # each recorded video will be 20 seconds long
 
 # Directory for saving recordings
-recordings_folder = 'static'
-try:
-    if not os.path.exists(recordings_folder):
-        os.makedirs(recordings_folder)
-except Exception as e:
-    print(f"Error creating directory: {e}")
+# recordings_folder = 'static'
+recordings_folder = '/home/pi/Desktop/BabyMonitorServer/static'
+if not os.path.exists(recordings_folder):
+    os.makedirs(recordings_folder)
 
 # Threading lock for synchronization
 lock = threading.Lock()
