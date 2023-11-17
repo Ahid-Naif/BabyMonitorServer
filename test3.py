@@ -215,8 +215,9 @@ def generate():
         # if not ret:
         #     break
 
+            frame = jpeg.tobytes()
             yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 # Flask routes for different functionalities
 @app.route('/video_feed')
