@@ -251,7 +251,7 @@ def generate():
                 else:
                     face_covered = False
         else:
-            if not body_exist:
+            if body_exist:
                 if not covered_state:
                     last_covered_time = time.time()
                     covered_state = True
