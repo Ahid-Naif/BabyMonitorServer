@@ -12,10 +12,7 @@ GPIO.setup(buzzer,GPIO.OUT)
 try:
     while True:
         print(GPIO.input(ir_sensor))
-        if GPIO.input(ir_sensor):
-            GPIO.output(buzzer, False)
-        else:
-            GPIO.output(buzzer, True)
+        GPIO.output(buzzer, GPIO.input(ir_sensor))
 
 except KeyboardInterrupt:
     GPIO.cleanup()
