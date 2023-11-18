@@ -49,7 +49,7 @@ display_enabled = True  # Control display of landmarks and status
 body_exist = True  # Track if a body exists in the frame
 
 def is_body_exit():
-    return not GPIO.input(ir_sensor)
+    return GPIO.input(ir_sensor)
 
 def start_recording():
     """Starts video recording."""
