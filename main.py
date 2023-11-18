@@ -17,15 +17,13 @@ CORS(app)
 # Video capture setup with OpenCV
 cap = cv2.VideoCapture(0)  # 0 is typically the default camera
 
-# Setup for video recording
-fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Codec
 out = None  # VideoWriter object
 recording_started = None  # Track start time of recording
 recorded_video_duration = 20 # each recorded video will be 20 seconds long
 
 # Directory for saving recordings
-# recordings_folder = 'static'
-recordings_folder = '/home/pi/Desktop/BabyMonitorServer/static'
+recordings_folder = 'static'
+/home/pi/Desktop/BabyMonitorServer/static
 if not os.path.exists(recordings_folder):
     os.makedirs(recordings_folder)
 
@@ -57,7 +55,10 @@ def start_recording():
     # -1: This specifies the codec to be used. A value of -1 prompts the user to select the codec from a list of available codecs on their machine.
     # 20.0: This is the frames per second (FPS) rate at which the video is recorded. 
     # (640, 480): This tuple specifies the resolution of the video, i.e., width and height in pixels.
-    out = cv2.VideoWriter(recording_filename, fourcc, 20.0, (640, 480))
+    # Setup for video recording
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Codec
+    # out = cv2.VideoWriter(recording_filename, -1, 20.0, (640, 480)) # For Windows
+    out = cv2.VideoWriter(recording_filename, fourcc, 20.0, (640, 480)) # For Raspberry Pi
 
 def stop_recording():
     """Stops the current video recording."""
