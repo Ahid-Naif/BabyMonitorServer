@@ -11,7 +11,7 @@ GPIO.setup(buzzer,GPIO.OUT)
 
 try:
     while True:
-
+        print(GPIO.input(ir_sensor))
         if GPIO.input(ir_sensor):
             GPIO.output(buzzer, False)
         else:
