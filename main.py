@@ -23,7 +23,6 @@ recorded_video_duration = 20 # each recorded video will be 20 seconds long
 
 # Directory for saving recordings
 recordings_folder = 'static'
-/home/pi/Desktop/BabyMonitorServer/static
 if not os.path.exists(recordings_folder):
     os.makedirs(recordings_folder)
 
