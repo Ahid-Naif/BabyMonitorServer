@@ -49,7 +49,7 @@ display_enabled = True  # Control display of landmarks and status
 body_exist = True  # Track if a body exists in the frame
 
 def is_body_exit():
-    return GPIO.input(ir_sensor)
+    return not GPIO.input(ir_sensor)
 
 def start_recording():
     """Starts video recording."""
@@ -231,6 +231,7 @@ def generate():
             out.write(frame)
             
         body_exist = is_body_exit()
+        print(body_exist)
         # Convert the image from BGR to RGB color space.
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         detections = face_detection_model(img)
